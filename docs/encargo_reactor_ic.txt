@@ -1,0 +1,51 @@
+CONTEXTO
+Estoy modelando en Python el reactor anaerobio de circulación interna (IC)
+de mi TFG: una planta de depuración de aguas residuales de matadero porcino
+con integración Power-to-Gas. Esta función será el primer módulo de un
+modelo de planta más grande.
+
+FUNCIÓN
+def reactor_anaerobio_ic(Q=5561.53, S0=5.6, COV=10, H=20, eta=0.82,
+                         rend_CH4=0.35, y_CH4=0.70, Y=0.05, C_fango=30):
+
+ENTRADAS Y UNIDADES
+- Q: caudal de alimentación [m3/d]
+- S0: DQO de entrada [kg DQO/m3]
+- COV: carga orgánica volumétrica de diseño [kg DQO/(m3·d)]
+- H: altura útil del reactor [m]
+- eta: eficiencia de eliminación de DQO, en fracción (0.82, no 82) [-]
+- rend_CH4: rendimiento DQO → CH4 [Nm3 CH4/kg DQO]
+- y_CH4: riqueza de metano en el biogás, en fracción [-]
+- Y: coeficiente de crecimiento celular [kg SSV/kg DQO]
+- C_fango: concentración de la purga [kg/m3]
+
+ECUACIONES (en este orden)
+1. m_DQO    = Q · S0                 [kg DQO/d]
+2. V_util   = m_DQO / COV            [m3]
+3. TRH      = V_util / Q             [d]
+4. A_teor   = V_util / H             [m2]
+5. v_a      = (Q / 24) / A_teor      [m/h]  (Q pasado a m3/h)
+6. dm_DQO   = m_DQO · eta            [kg DQO/d]
+7. Q_CH4    = dm_DQO · rend_CH4      [Nm3 CH4/d]
+8. Q_biogas = Q_CH4 / y_CH4          [Nm3/d]
+9. P_x      = Y · dm_DQO             [kg SSV/d]
+10. V_f     = P_x / C_fango          [m3/d]
+
+SALIDA
+Un diccionario con estas claves exactas:
+m_DQO_kg_d, V_util_m3, TRH_d, A_teor_m2, v_a_m_h, dm_DQO_kg_d,
+Q_CH4_Nm3_d, Q_biogas_Nm3_d, P_x_kg_d, V_f_m3_d
+
+RESTRICCIONES
+- Solo Python estándar, sin librerías externas.
+- Todos los parámetros deben ser > 0; eta e y_CH4 deben estar entre 0 y 1.
+  Si alguno no cumple, la función devuelve None.
+- Redondear todos los resultados a 2 decimales.
+- Docstring y comentarios en español. Sin print dentro de la función.
+
+CASO DE PRUEBA
+Con los valores por defecto, la función debe devolver:
+m_DQO_kg_d = 31144.57     V_util_m3 = 3114.46     TRH_d = 0.56
+A_teor_m2 = 155.72        v_a_m_h = 1.49          dm_DQO_kg_d = 25538.55
+Q_CH4_Nm3_d = 8938.49     Q_biogas_Nm3_d = 12769.27
+P_x_kg_d = 1276.93        V_f_m3_d = 42.56
